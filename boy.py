@@ -37,6 +37,7 @@ class Boy:
                 {'trigger': 'start_running', 'source': ['IDLE', 'SLEEP'], 'dest': 'RUN'},
                 {'trigger': 'stop_running', 'source': 'RUN', 'dest': 'IDLE'},
                 {'trigger': 'start_autorun', 'source': ['IDLE', 'SLEEP', 'RUN'], 'dest': 'AUTORUN'},
+                {'trigger': 'finish_autorun', 'source': 'AUTORUN', 'dest': 'IDLE'},
             ],
             initial='IDLE',
             auto_transitions=False,
@@ -105,7 +106,8 @@ class Boy:
             self.x = max(self.HALF_WIDTH, min(get_canvas_width() - self.HALF_WIDTH, self.x))
             self.frame = (self.frame + 1) % 8
         elif self.state == 'AUTORUN':
-            self.autorun.update()
+            if self.autorun.update():
+                self.finish_autorun()
 
     def draw(self):
         if self.state == 'SLEEP':
