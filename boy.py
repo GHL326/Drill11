@@ -1,7 +1,7 @@
 from math import pi
 from time import monotonic
 
-from pico2d import load_image
+from pico2d import SDL_KEYDOWN, SDLK_SPACE, load_image
 from transitions import Machine
 
 
@@ -13,7 +13,7 @@ class Boy:
         self.frame = 0
         self.face_dir = 1
         self.image = load_image('animation_sheet.png')
-        self.machine = Machine(model=self, states=[{'name': 'IDLE', 'on_enter': 'enter_idle'}, {'name': 'SLEEP', 'on_enter': 'enter_sleep'}], transitions=[{'trigger': 'fall_asleep', 'source': 'IDLE', 'dest': 'SLEEP'}], initial='IDLE', auto_transitions=False)
+        self.machine = Machine(model=self, states=[{'name': 'IDLE', 'on_enter': 'enter_idle'}, {'name': 'SLEEP', 'on_enter': 'enter_sleep'}], transitions=[{'trigger': 'fall_asleep', 'source': 'IDLE', 'dest': 'SLEEP'}, {'trigger': 'wake_up', 'source': 'SLEEP', 'dest': 'IDLE'}], initial='IDLE', auto_transitions=False)
 
         # The initial state does not invoke on_enter automatically.
         self.enter_idle()
@@ -24,6 +24,10 @@ class Boy:
 
     def enter_sleep(self):
         self.frame = 0
+
+    def handle_event(self, event):
+        if self.state == 'SLEEP' and event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
+            self.wake_up()
 
     def update(self):
         if self.state == 'IDLE':
