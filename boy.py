@@ -29,7 +29,7 @@ class Boy:
             transitions=[
                 {'trigger': 'fall_asleep', 'source': 'IDLE', 'dest': 'SLEEP'},
                 {'trigger': 'wake_up', 'source': 'SLEEP', 'dest': 'IDLE'},
-                {'trigger': 'start_running', 'source': 'IDLE', 'dest': 'RUN'},
+                {'trigger': 'start_running', 'source': ['IDLE', 'SLEEP'], 'dest': 'RUN'},
                 {'trigger': 'stop_running', 'source': 'RUN', 'dest': 'IDLE'},
             ],
             initial='IDLE',
@@ -50,9 +50,8 @@ class Boy:
         self.frame = 0
 
     def handle_event(self, event):
-        if self.state == 'SLEEP':
-            if event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
-                self.wake_up()
+        if self.state == 'SLEEP' and event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
+            self.wake_up()
             return
 
         if event.type not in (SDL_KEYDOWN, SDL_KEYUP):
@@ -64,7 +63,7 @@ class Boy:
             # Ignore key repeat; the most recently pressed direction takes priority.
             if event.key not in self.pressed_directions:
                 self.pressed_directions.append(event.key)
-            if self.state == 'IDLE':
+            if self.state in ('IDLE', 'SLEEP'):
                 self.start_running()
         elif event.key in self.pressed_directions:
             self.pressed_directions.remove(event.key)
