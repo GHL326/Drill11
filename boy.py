@@ -7,13 +7,14 @@ from transitions import Machine
 
 class Boy:
     IDLE_TIMEOUT = 5.0
+    RUN_SPEED = 5
 
     def __init__(self):
         self.x, self.y = 400, 90
         self.frame = 0
         self.face_dir = 1
         self.image = load_image('animation_sheet.png')
-        self.machine = Machine(model=self, states=[{'name': 'IDLE', 'on_enter': 'enter_idle'}, {'name': 'SLEEP', 'on_enter': 'enter_sleep'}], transitions=[{'trigger': 'fall_asleep', 'source': 'IDLE', 'dest': 'SLEEP'}, {'trigger': 'wake_up', 'source': 'SLEEP', 'dest': 'IDLE'}], initial='IDLE', auto_transitions=False)
+        self.machine = Machine(model=self, states=[{'name': 'IDLE', 'on_enter': 'enter_idle'}, {'name': 'SLEEP', 'on_enter': 'enter_sleep'}, {'name': 'RUN', 'on_enter': 'enter_run'}], transitions=[{'trigger': 'fall_asleep', 'source': 'IDLE', 'dest': 'SLEEP'}, {'trigger': 'wake_up', 'source': 'SLEEP', 'dest': 'IDLE'}, {'trigger': 'start_running', 'source': 'IDLE', 'dest': 'RUN'}, {'trigger': 'stop_running', 'source': 'RUN', 'dest': 'IDLE'}], initial='IDLE', auto_transitions=False)
 
         # The initial state does not invoke on_enter automatically.
         self.enter_idle()
@@ -23,6 +24,9 @@ class Boy:
         self.frame = 0
 
     def enter_sleep(self):
+        self.frame = 0
+
+    def enter_run(self):
         self.frame = 0
 
     def handle_event(self, event):
@@ -35,9 +39,14 @@ class Boy:
                 self.fall_asleep()
             else:
                 self.frame = (self.frame + 1) % 8
+        elif self.state == 'RUN':
+            self.x += self.face_dir * self.RUN_SPEED
+            self.frame = (self.frame + 1) % 8
 
     def draw(self):
         row = 300 if self.face_dir == 1 else 200
+        if self.state == 'RUN':
+            row = 100 if self.face_dir == 1 else 0
         if self.state == 'SLEEP':
             self.image.clip_composite_draw(0, row, 100, 100, -pi / 2, '', self.x, self.y - 25, 100, 100)
         else:
