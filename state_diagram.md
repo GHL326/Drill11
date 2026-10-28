@@ -7,6 +7,13 @@ stateDiagram-v2
     SLEEP: 누운 자세로 정지
     IDLE --> SLEEP: 5초 경과
     SLEEP --> IDLE: 스페이스 키 누름
+    RUN: 단일 상태에서 좌우 이동
+    RUN: 화면 경계에서 위치 제한
+    IDLE --> RUN: 좌우 방향키 누름
+    RUN --> RUN: 방향 변경
+    RUN --> IDLE: 방향키 모두 놓음
 ```
 
 IDLE에 진입할 때마다 5초 타이머를 새로 시작합니다.
+RUN은 좌우 공통 상태이며 `face_dir`로 방향을 구분합니다.
+방향키를 모두 놓으면 IDLE로 돌아갑니다.
