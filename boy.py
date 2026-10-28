@@ -1,14 +1,25 @@
+from time import monotonic
+
 from pico2d import load_image
 from transitions import Machine
 
 
 class Boy:
+    IDLE_TIMEOUT = 5.0
+
     def __init__(self):
         self.x, self.y = 400, 90
         self.frame = 0
         self.face_dir = 1
         self.image = load_image('animation_sheet.png')
-        self.machine = Machine(model=self, states=['IDLE'], initial='IDLE', auto_transitions=False)
+        self.machine = Machine(model=self, states=[{'name': 'IDLE', 'on_enter': 'enter_idle'}], initial='IDLE', auto_transitions=False)
+
+        # The initial state does not invoke on_enter automatically.
+        self.enter_idle()
+
+    def enter_idle(self):
+        self.idle_started_at = monotonic()
+        self.frame = 0
 
     def update(self):
         self.frame = (self.frame + 1) % 8
